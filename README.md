@@ -13,6 +13,8 @@
 - **Python**: Core application logic.
 
 ### 🔄 Data Flow
+![System Architecture](docs/assets/architecture_diagram.png)
+
 ```mermaid
 graph LR
     User[User Prompt] --> Router[Agent Router]
@@ -21,6 +23,9 @@ graph LR
     Tools -->|Query Results| Router
     Router -->|Final Generative Response| LLM[LLM Response]
 ```
+
+![ReAct Pattern Flow](docs/assets/react_flow_diagram.png)
+
 
 ### 📋 Features
 1.  **ReAct Pattern**: Reason + Act loops to solve complex queries.
