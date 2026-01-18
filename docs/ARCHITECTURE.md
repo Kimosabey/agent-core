@@ -1,40 +1,74 @@
 # 🏗️ System Architecture
 
-## 🔍 Overview
-The **Local AI Agent (A2)** is designed as an autonomous reasoning engine that bridges the gap between static LLMs and dynamic database actions.
+## 1. High-Level Design (HLD)
 
-![Architecture Diagram](assets/architecture_diagram.png)
+Agent Core is a **Local Reasoning Engine** built on the ReAct (Reason + Act) pattern. It serves as an autonomous decision-making layer that sits between the User and Raw LLMs (like Llama 3), turning simple text completion engines into goal-seeking agents.
 
-## 🧩 Core Components
+```mermaid
+graph TD
+    User([👤 User]) -->|Goal| Agent[🤖 Agent Core]
+    
+    subgraph "Reasoning Loop"
+        Agent -->|1. Thought| Brain[Llama 3 Local]
+        Brain -->|2. Action Plan| Agent
+        Agent -->|3. Toolkit| Tools[🛠️ Calculator / Search / DB]
+        Tools -->|4. Observation| Agent
+        Agent -->|5. Synthesis| Memory[(Redis Context)]
+    end
+    
+    Memory -->|History| Brain
+    Agent -->|Final Answer| User
+```
 
-### 1. 🧠 Agent Router (LangChain)
-The central nervous system of the application. It receives user inputs and decides:
-- **Do I need more info?** -> Query Redis for context.
-- **Do I need to check the database?** -> Use SQL Tools.
-- **Can I answer now?** -> Generate direct response.
+### Core Components
+1.  **Agent Router**: The central dispatcher that parses the User's intent.
+2.  **Tool Registry**: A modular collection of Python functions (e.g., `calculate_tax`, `search_kb`) that the LLM can "call".
+3.  **Redis Memory**: Long-term conversational storage preventing the agent from "forgetting" instructions.
+4.  **Local Inference**: Ollama running quantized models (Llama 3 8B) for privacy and speed.
 
-### 2. 🛡️ Reasoning Engine (ReAct Pattern)
-We use the **Reason + Act** loop to ensure accuracy:
-1.  **Reason**: Analyze the user's request.
-2.  **Act**: Execute a specific tool (e.g., `execute_sql_query`).
-3.  **Observe**: Look at the data returned.
-4.  **Answer**: Formulate the final response.
+---
 
-![ReAct Flow](assets/react_flow_diagram.png)
+## 2. Low-Level Design (LLD)
 
-### 3. 💾 Long-Term Memory (Redis)
-Unlike standard chatbots, A2 remembers.
-- Stores conversation history.
-- Retrieves past interactions to maintain context.
-- Fast, key-value storage for low latency.
+### The ReAct Loop
+Instead of standard "Input -> Output", Agent Core uses "Input -> Thought -> Action -> Observation -> Output".
 
-### 4. 🧰 Tools & Skills (SQLite/SQL)
-The agent is equipped with "skills" to interact with the real world:
-- `list_tables`: Awareness of data structure.
-- `execute_sql_query`: Ability to fetch live data.
+1.  **Thought**: "The user wants to know the square root of their account balance."
+2.  **Action**: `call_tool('get_balance', user_id='123')`
+3.  **Observation**: "Balance is 100."
+4.  **Thought**: "Now I need to calculate sqrt(100)."
+5.  **Action**: `call_tool('calculator', expression='sqrt(100)')`
+6.  **Observation**: "10."
+7.  **Final Answer**: "Your result is 10."
 
-## 🚀 Tech Stack
-- **Framework**: LangChain, LangGraph
-- **LLM**: GPT-4o-mini (OpenAI) / Llama 3 (Ollama)
-- **Database**: SQLite (Mock Data), Redis (Memory)
-- **UI**: Rich CLI (Python)
+### Prompt Engineering
+We inject a meta-prompt (System Message) that enforces strict structured output (JSON) for tool calling, preventing the LLM from rambling.
+
+```python
+SYSTEM_PROMPT = """
+You are an autonomous agent. 
+To use a tool, please output a JSON object:
+{ "tool": "search", "args": { "query": "weather" } }
+Do not execute the tool yourself. Just ask to run it.
+"""
+```
+
+---
+
+## 3. Decision Log
+
+| Decision | Alternative | Reason for Choice |
+| :--- | :--- | :--- |
+| **LangChain** | Raw OpenAI API | **Abstraction**. LangChain provides built-in parsers for ReAct loops, making it easier to swap models (e.g., upgrading from Llama 2 to 3) without rewriting regex parsers. |
+| **Ollama** | HuggingFace Transformers | **UX**. Ollama exposes a clean REST API, avoiding the need to manage PyTorch weights and CUDA dependencies manually in the Python code. |
+| **Redis** | In-Memory List | **Persistence**. Allows the agent to be restarted without losing the "Memory" of the conversation. |
+
+---
+
+## 4. Key Patterns
+
+### Tool Use (Function Calling)
+The defining feature of this agent is **Agency**. It is not passive. It has write-access to the outside world via Tools. This transforms the LLM from a "Chatbot" into an "Operator".
+
+### Chain-of-Thought (CoT)
+We effectively force the model to "show its work". This improves accuracy on math and logic tasks by 40-50% compared to zero-shot answers, as the model generates intermediate tokens to stabilize its reasoning track.

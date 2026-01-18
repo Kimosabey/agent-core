@@ -1,110 +1,80 @@
-# Local AI Agent (A2)
-## Agentic AI Orchestration Layer
+# Agent Core
+
+![Architecture](docs/assets/architecture_diagram.png)
+
+## Local AI Orchestration & Reasoning Engine
 
 <div align="center">
 
-![Status](https://img.shields.io/badge/Status-Parked-yellow?style=for-the-badge)
+![Status](https://img.shields.io/badge/Status-Experimental-yellow?style=for-the-badge)
 ![License](https://img.shields.io/badge/License-MIT-blue?style=for-the-badge)
-
-**Tech Stack**
-
-![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
-![LangChain](https://img.shields.io/badge/LangChain-Orchestration-1C3C3C?style=for-the-badge)
-![Ollama](https://img.shields.io/badge/Ollama-Local_LLM-000000?style=for-the-badge)
-![Redis](https://img.shields.io/badge/Redis-Memory-DC382D?style=for-the-badge&logo=redis&logoColor=white)
-
-**Features**
-
-![ReAct Pattern](https://img.shields.io/badge/Pattern-ReAct-FF6B6B?style=flat-square)
-![Tool Use](https://img.shields.io/badge/Capability-Tool_Use-4ECDC4?style=flat-square)
-![Context Awareness](https://img.shields.io/badge/Feature-Context_Awareness-95E1D3?style=flat-square)
+![AI](https://img.shields.io/badge/Model-Llama_3_Local-purple?style=for-the-badge)
 
 </div>
+
+**Agent Core** turns static LLMs into autonomous agents. It implements the **ReAct (Reason + Act)** pattern to allow local models (running via Ollama) to use Tools, query Databases, and maintain long-term Memory (Redis) without sending data to the cloud.
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Prerequisites
-- **Ollama** (Running locally with `llama3` or `mistral`)
-- **Redis** (Docker or Local)
-- **Python 3.10+**
+Run the Agent locally:
 
-### 2. Installation
 ```bash
-git clone <your-repo>
-cd agent-core
+# 1. Start Support Services
+docker-compose up -d
+
+# 2. Run Reasoning Loop
 pip install -r requirements.txt
-```
-
-### 3. Run Agent
-```bash
-# Ensure Ollama & Redis are up
 python main.py
 ```
 
+> **Note**: Requires [Ollama](https://ollama.com/) running on port 11434.
+
 ---
 
-## 📸 Visual Overview
+## 📸 Architecture & Logic
+
+### The Reasoning Loop (ReAct)
+![ReAct Pattern](docs/assets/react_flow_diagram.png)
+*Input -> Thought -> Action -> Observation -> Final Answer*
 
 ### System Data Flow
-![System Architecture](docs/assets/architecture_diagram.png)
-*Flow of prompts through Router, Memory, and Tools*
+![Architecture](docs/assets/architecture_diagram.png)
+*Router dispatching User Intent to Tools and Memory*
 
-### ReAct Pattern Logic
-![ReAct Pattern Flow](docs/assets/react_flow_diagram.png)
-*Reason-Act loops for solving complex queries*
+> **Deep Dive**: See [ARCHITECTURE.md](./docs/ARCHITECTURE.md) for the Prompt Engineering strategy.
 
 ---
 
 ## ✨ Key Features
 
-### 🧠 Autonomous Reasoning
-- **ReAct Pattern**: Implements "Reason + Act" loops to decompose complex user queries into actionable steps.
-- **Chain-of-Thought**: Maintains internal monologue to guide decision-making.
-
-### 🛠️ Tool Orchestration
-- **Function Calling**: Capable of executing specific python functions (mock DB queries, calculations).
-- **Dynamic Selection**: Router selects the best tool for the job.
-
-### 🧠 Persistent Memory
-- **Context Awareness**: Uses Redis to store conversation history, allowing for multi-turn dialogue with context retention.
-
----
-
-## 🏗️ Architecture
-
-```mermaid
-graph LR
-    User[User Prompt] --> Router[Agent Router]
-    Router -->|Context Lookup| Redis[(Redis Memory)]
-    Router -->|Action Decision| Tools[Tool Execution]
-    Tools -->|Query Results| Router
-    Router -->|Final Generative Response| LLM[LLM Response]
-```
-
----
-
-## 🔧 Tech Stack
-
-| Component | Technology | Purpose |
-| :--- | :--- | :--- |
-| **Logic** | Python | Core application runtime |
-| **Framework** | LangChain | Agent orchestration & prompts |
-| **LLM** | Ollama | Local inference runner |
-| **Memory** | Redis | Vector/Conversation store |
+*   **🧠 ReAct Pattern**: Implements "Thought-Action-Observation" loops for complex problem solving.
+*   **🔌 Tool Use**: Can execute Python functions (Calculator, Search, API Calls).
+*   **🔒 100% Local**: Works with Llama 3 / Mistral via Ollama. No OpenAI keys required.
+*   **💾 Redis Memory**: Persistent conversation context across sessions.
 
 ---
 
 ## 📚 Documentation
 
-- [**Architecture Guide**](./docs/ARCHITECTURE.md) - System design and patterns
+| Document | Description |
+| :--- | :--- |
+| [**System Architecture**](./docs/ARCHITECTURE.md) | Chain-of-Thought and ReAct Logic. |
+| [**Getting Started**](./docs/GETTING_STARTED.md) | Setup Guide for Ollama and Python. |
+| [**Failure Scenarios**](./docs/FAILURE_SCENARIOS.md) | Handling Infinite Loops and Hallucinations. |
+| [**Interview Q&A**](./docs/INTERVIEW_QA.md) | "Why ReAct?" and "Local vs Cloud LLMs". |
 
 ---
 
-## 📝 License
+## 🔧 Tech Stack
 
-MIT License - See [LICENSE](./LICENSE) for details
+| Component | Technology | Role |
+| :--- | :--- | :--- |
+| **Model** | **Ollama (Llama 3)** | Inference Engine. |
+| **Logic** | **LangChain** | Agent Orchestration. |
+| **Memory** | **Redis** | Context Storage. |
+| **Runtime** | **Python 3.11** | Application Logic. |
 
 ---
 
@@ -112,8 +82,10 @@ MIT License - See [LICENSE](./LICENSE) for details
 
 **Harshan Aiyappa**  
 Senior Full-Stack Engineer  
-📧 [GitHub](https://github.com/Kimosabey)
+[GitHub Profile](https://github.com/Kimosabey)
 
 ---
 
-**Built with**: Python • LangChain • Ollama • Redis
+## 📝 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
