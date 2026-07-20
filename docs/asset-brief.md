@@ -10,11 +10,11 @@ Grid WebP: `kimo-nexus/public/projects/agent-core.webp` (1280×640).
 
 | Asset | File | Size | Status |
 |---|---|---|---|
-| Thumbnail | `docs/assets/thumbnail.png` | 1280×640 | ✅ Legacy labeled diagram (1024²) — regen to minimal tier queued |
-| Hero | `docs/assets/hero_main.png` | 1920×1080 | ✅ Shipped (minimal tier) |
-| Workflow | `docs/assets/workflow.png` | 1920×1080 | ⏳ Not generated |
-| Dashboard | `docs/assets/dashboard.png` | 1600×1000 | ⏳ Not generated |
-| Architecture | `docs/assets/architecture.png` | 1600×1000 | ✅ Also architecture_diagram.png, react_flow_diagram.png |
+| Thumbnail | `docs/assets/thumbnail.png` | 1280×640 | ✅ Shipped (V3 minimal) |
+| Hero | `docs/assets/hero_main.png` | 1920×1080 | ✅ Shipped (V3 minimal) |
+| Workflow | `docs/assets/workflow.png` | 1920×1080 | ✅ Shipped (V3 minimal) |
+| Dashboard | `docs/assets/dashboard.png` | 1600×1000 | ✅ Shipped (V3 minimal) |
+| Architecture | `docs/assets/architecture.png` | 1600×1000 | ✅ Shipped (V3 minimal); also `architecture_diagram.png`, `react_flow_diagram.png` |
 
 ### Thumbnail prompt (required — grid + README)
 
